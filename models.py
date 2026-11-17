@@ -18,6 +18,7 @@ follows = db.Table(  # ユーザ間のフォロー関係を示す中間テーブ
 
 class Task(db.Model):
     # タスクを登録するためのモデル
+    is_completed = db.Column(db.Boolean, default=False, nullable=False)
     __tablename__ = "tasks"  # DB内部で使用する名前（テーブル名）
 
     id = db.Column(db.Integer, primary_key=True)  # 一意なID（数字）

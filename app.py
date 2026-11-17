@@ -76,8 +76,9 @@ def logout():
 @app.route("/")
 @login_required
 def index():
-    my_tasks = Task.query.filter_by(user=current_user)
-    shared_tasks = Task.query.filter(Task.user_id.in_(f.id for f in current_user.followees) & Task.is_shared)
+    #自分のタスク（未完了が上、官僚が下。同じ状態なら締切順）
+    my_tasks = Task.query.filter_by(user=current_user.id).order_by(Task.is_completed.asc(), Task.deadline.asc()).all()
+    shared_tasks = Task.query.filter(Task.user_id.in_(f.id for f in current_user.followees) & Task.is_shared).order_by(Task.is_completed.asc(), Task.deadline.asc()).all()
     return render_template(
         "index.html", title="ホーム", my_tasks=my_tasks, shared_tasks=shared_tasks
     )  # 2種類のタスクをテンプレートに渡す
@@ -130,6 +131,17 @@ def delete(task_id):  # この行は自身で修正している可能性が高�
 
     db.session.delete(task)
     db.session.commit()
+    return redirect("/")
+
+
+@app.route("/complete/<int:id>", methods=["POST"])
+@login_required
+def complete(id):
+    task = Task.query.get_or_404(id)
+    # 自分のタスク以外は操作できないようにする
+    if task.user_id == current_user.id:
+        task.is_completed = not task.is_completed  # TrueとFalseを反転
+        db.session.commit()
     return redirect("/")
 
 
