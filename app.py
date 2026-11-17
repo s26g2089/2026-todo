@@ -134,7 +134,7 @@ def delete(task_id):  # この行は自身で修正している可能性が高�
     return redirect("/")
 
 
-@app.route("/complete/<int:id>", methods=["POST"])
+@app.route("/complete/<int:id>", methods=["POST"])#完了状態を切り替える
 @login_required
 def complete(id):
     task = Task.query.get_or_404(id)
